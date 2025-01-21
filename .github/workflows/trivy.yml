@@ -1,39 +1,75 @@
-name: Trivy Scan
+name: Trivy Vulnerability Scan
 
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
   trivy-scan:
+    name: Run Trivy Scan
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Install Trivy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install -y trivy
-
-      - name: Run Trivy scan
-        run: trivy fs --exit-code 0 --severity HIGH,CRITICAL --format json . > trivy_report.json
-
-      - name: Export findings to text file
-        run: trivy --output "asd.txt" --no-progress --exit-code 1 --severity HIGH,CRITICAL knqyf263/vuln-image:1.2.3
-       # jq -r '.Results[] | "Target: \(.Target)\nSeverity: \(.Vulnerabilities[]?.Severity)\nDescription: \(.Vulnerabilities[]?.Description)\n"' trivy_report.json > trivy_report.txt
-
-      - name: Upload Trivy report
-        uses: actions/upload-artifact@v2
+      # Run Trivy to scan for vulnerabilities in code (configuration scan)
+      - name: Run Trivy Scanner for Config Files
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          name: trivy-report
-          path: trivy_report.txt
+          scan-type: config
+          hide-progress: true
+          output: trivy-config-results.txt
+
+      # Run Trivy to scan the codebase for dependencies (vulnerability scan)
+      - name: Run Trivy Scanner for Vulnerabilities
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          hide-progress: true
+          output: trivy-vulnerability-results.txt
+
+      # Publish Trivy Output to GitHub Actions Summary
+      - name: Publish Trivy Output to Summary
+        run: |
+          if [[ -s trivy-config-results.txt ]]; then
+            {
+              echo "### Configuration Scan Results"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```'
+              cat trivy-config-results.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [[ -s trivy-vulnerability-results.txt ]]; then
+            {
+              echo "### Vulnerability Scan Results"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```'
+              cat trivy-vulnerability-results.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+          
+      - name: List Files for Debugging
+        run: ls -R
+
+      - name: Move Trivy Results
+        run: mkdir -p Bimalbhattarai1/Artifacts_Result && mv trivy-config-results.txt Bimalbhattarai1/Artifacts_Result/
+
+      # Upload Trivy Results as Artifacts
+      - name: Upload Trivy Results as Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-results
+          path: Bimalbhattarai1/Artifacts_Result/*
+            trivy-config-results.txt
+            trivy-vulnerability-results.txt
