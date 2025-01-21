@@ -63,13 +63,14 @@ jobs:
         run: ls -R
 
       - name: Move Trivy Results
-        run:  mv trivy-config-results.txt Bimalbhattarai1/trivy_demo2/
+        run:  mkdir -p Bimalbhattarai1/Artifacts_Result && mv trivy-config-results.txt Bimalbhattarai1/Artifacts_Result/
+
 
       # Upload Trivy Results as Artifacts
       - name: Upload Trivy Results as Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: trivy-results
-          path: Bimalbhattarai1/trivy_demo2/*
+          path: Bimalbhattarai1/Artifacts_Result/*
             trivy-config-results.txt
             trivy-vulnerability-results.txt
