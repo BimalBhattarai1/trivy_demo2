@@ -63,7 +63,7 @@ jobs:
         run: ls -R
 
       - name: Move Trivy Results
-        run: mkdir -p Bimalbhattarai1/Artifacts_Result && mv trivy-config-results.txt Bimalbhattarai1/Artifacts_Result/
+        run:  mv trivy-config-results.txt Bimalbhattarai1/Artifacts_Result/
 
       # Upload Trivy Results as Artifacts
       - name: Upload Trivy Results as Artifacts
