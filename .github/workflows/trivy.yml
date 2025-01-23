@@ -68,7 +68,7 @@ jobs:
 
       # Upload Trivy Results as Artifacts
       - name: Upload Trivy Results as Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-results
           path: Bimalbhattarai1/Artifacts_Result/*
