@@ -63,7 +63,7 @@ jobs:
         run: ls -R
 
       - name: Move Trivy Results
-        run:  mkdir -p Artifacts_Result && mv trivy-config-results.txt Artifacts_Result/
+        run:  mkdir -p Artifacts_Result && mv trivy-config-results.txt Artifacts_Result
 
 
       # Upload Trivy Results as Artifacts
@@ -72,5 +72,5 @@ jobs:
         with:
           name: trivy-results
           path: Artifacts_Result/*
-            trivy-config-results.txt
-            trivy-vulnerability-results.txt
+           # trivy-config-results.txt
+          #  trivy-vulnerability-results.txt
